@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 use Modern::Perl;
-use Msm::Parser;
+use Msm;
 use Msm::Evaluator;
 
 #my $prog = '(+ 2 3)';
