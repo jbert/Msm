@@ -31,6 +31,10 @@ use Moose;
                 $result = shift @args;
                 $result -= $_ for @args;
             }
+            when ('*')    {
+                $result = 1;
+                $result *= $_ for @args;
+            }
             default { die "Unsupported op: " . $op->val; }
         }
         return $result;
