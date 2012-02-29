@@ -5,7 +5,7 @@ use Msm::AST;
 my $grammar = <<'EOG';
 
 program: sexp(s?)
-    { $item[1]; }
+    { Msm::AST::Program->new({exps => $item[1]}) }
 
 sexp: '(' operator item(s?) ')'
     { Msm::AST::Expression->new({op => $item[2], args => $item[3]})  }

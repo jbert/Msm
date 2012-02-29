@@ -40,5 +40,18 @@ use Moose;
         return $result;
     }
 }
+{
+    package Msm::AST::Program;
+
+    sub eval { 
+        my ($self) = @_;
+
+        my $result;
+        my @vals = map { $_->eval } @{$self->exps};
+        return $vals[-1];
+    }
+}
+
+1;
 
 1;

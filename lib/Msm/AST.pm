@@ -27,5 +27,12 @@ package Msm::AST;
     has 'op', is => 'rw';
     has 'args', is => 'rw';
 }
+{
+    package Msm::AST::Program;
+    use Moose;
+    has 'exps', is => 'rw';
+}
+
+1;
 
 1;

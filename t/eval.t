@@ -24,7 +24,7 @@ sub test_prog {
     my ($prog) = @_;
 
     my $parser = Msm::Parser->parser;
-    my $ast = $parser->sexp($prog);
+    my $ast = $parser->program($prog);
 
     my $evaluator = Msm::Evaluator->new;
     my $result = $ast->eval;
