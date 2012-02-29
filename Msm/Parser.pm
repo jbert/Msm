@@ -1,5 +1,6 @@
-package Msm;
+package Msm::Parser;
 use Parse::RecDescent;
+use Msm::AST;
 
 my $grammar = <<'EOG';
 
@@ -7,16 +8,16 @@ program: sexp(s?)
     { $item[1]; }
 
 sexp: '(' operator item(s?) ')'
-    { [ $item[2], @{$item[3]} ] }
+    { Msm::AST::Expression->new({op => $item[2], vals => $item[3]})  }
 
 item: integer | sexp
     { $item[1]; }
 
 integer: m{\d+}
-    { [@item[0..$#item]] }
+    { Msm::AST::Integer->new({val => $item[1]}) }
 
 operator: m{[a-z\d_+\-*/]+}
-    { [@item[0..$#item]] }
+    { Msm::AST::Operator->new({val => $item[1]}) }
 
 EOG
 
