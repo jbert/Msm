@@ -8,7 +8,7 @@ program: sexp(s?)
     { $item[1]; }
 
 sexp: '(' operator item(s?) ')'
-    { Msm::AST::Expression->new({op => $item[2], vals => $item[3]})  }
+    { Msm::AST::Expression->new({op => $item[2], args => $item[3]})  }
 
 item: integer | sexp
     { $item[1]; }

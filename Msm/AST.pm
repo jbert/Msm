@@ -25,7 +25,7 @@ package Msm::AST;
     use Moose;
     extends 'Msm::AST::Node';
     has 'op', is => 'rw';
-    has 'vals', is => 'rw';
+    has 'args', is => 'rw';
 }
 
 1;
