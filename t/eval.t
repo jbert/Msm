@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use Modern::Perl;
+use Test::More tests => 1;
 use Msm;
 use Msm::Evaluator;
 
@@ -11,15 +11,11 @@ my $prog = '(+ (+ 1 2) (- 2 3))';
 my $parser = Msm::Parser->parser;
 my $ast = $parser->sexp($prog);
 
-use Data::Dumper;
-say "Parse tree is: " . Data::Dumper::Dumper($ast);
-
 my $evaluator = Msm::Evaluator->new;
 my $result = $ast->eval;
 
-say "Eval result is $result";
-$result = mzscheme_eval($prog);
-say "Mzscheme result is $result";
+my $expected = mzscheme_eval($prog);
+is($result, $expected, "prog [$prog] evals same as mzscheme");
 
 sub mzscheme_eval {
     my ($prog) = @_;
