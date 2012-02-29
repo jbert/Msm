@@ -1,21 +1,35 @@
 #!/usr/bin/perl
-use Test::More tests => 1;
+my @progs;
+BEGIN {
+    @progs = (
+            '(+ 2 3)',
+            '(+ (+ 1 2) (- 2 3))',
+            '(- 6 1 1 1 1 1 1 1 1 1 1 1 1)',
+            '(- 6 1 0 1 0 1 0 1 0 1 0 1 0)',
+        );
+}
+
+use Test::More tests => scalar @progs;
 use Msm;
 use Msm::Evaluator;
 
-#my $prog = '(+ 2 3)';
-#my $prog = '(lambda () (begin (+ 1 11) (- 10 10))';
-my $prog = '(+ (+ 1 2) (- 2 3))';
-#my $prog = '(lambda () (begin (+ 1 11) (- 10 10)))';
+foreach my $prog (@progs) {
+    test_prog($prog);
+}
+exit 0;
 
-my $parser = Msm::Parser->parser;
-my $ast = $parser->sexp($prog);
+sub test_prog {
+    my ($prog) = @_;
 
-my $evaluator = Msm::Evaluator->new;
-my $result = $ast->eval;
+    my $parser = Msm::Parser->parser;
+    my $ast = $parser->sexp($prog);
 
-my $expected = mzscheme_eval($prog);
-is($result, $expected, "prog [$prog] evals same as mzscheme");
+    my $evaluator = Msm::Evaluator->new;
+    my $result = $ast->eval;
+
+    my $expected = mzscheme_eval($prog);
+    is($result, $expected, "prog [$prog] evals same as mzscheme");
+}
 
 sub mzscheme_eval {
     my ($prog) = @_;
