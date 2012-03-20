@@ -20,11 +20,11 @@ sub test_prog {
 
     my $c_code = $ast->to_c;
     ok($c_code, "got some code");
-    my ($c_fh, $c_file) = tempfile('/tmp/tocXXXX', SUFFIX => '.c');
+    my ($c_fh, $c_file) = tempfile('/tmp/tocXXXX', SUFFIX => '.c', UNLINK => 1);
     print $c_fh $c_code;
     close $c_fh or die "can't close c fh $c_file : $!";
 
-    my ($exe_fh, $exe_file) = tempfile();
+    my ($exe_fh, $exe_file) = tempfile('/tmp/tocXXXX', UNLINK => 1);
     close $exe_fh;
     ok(compile_c($c_file, $exe_file), "can compile c file [$c_file] to exe [$exe_file]");
     ok(-f $exe_file, "exe file $exe_file exists");
