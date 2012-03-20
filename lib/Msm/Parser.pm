@@ -13,7 +13,7 @@ sexp: '(' operator item(s?) ')'
 item: integer | sexp
     { $item[1]; }
 
-integer: m{\d+}
+integer: m{[+-]?\d+}
     { Msm::AST::Integer->new({val => $item[1]}) }
 
 operator: m{[a-z\d_+\-*/]+}
