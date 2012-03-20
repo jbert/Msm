@@ -5,6 +5,10 @@ DONE - define simple language (e.g. arithmetic s-exprs)
 
 DONE - lex and parse language to an AST
 
+- move some of the to_c test infrastructure into module
+
+- define single 'run' interface, taking an engine (eval, toc, asm) to use
+
 3 - compile AST to x64 assembler 
     DONE a - eval first
     b - then go via C 
