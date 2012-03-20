@@ -1,12 +1,13 @@
 - assembler...
 
 
-1 - define simple language (e.g. arithmetic s-exprs)
+DONE - define simple language (e.g. arithmetic s-exprs)
 
-2 - lex and parse language to an AST
+DONE - lex and parse language to an AST
 
 3 - compile AST to x64 assembler 
-    a - go via C first
-    b - stack everything, to avoid need for register allocator
+    DONE a - eval first
+    b - then go via C 
+    c - then via assembler stack everything, to avoid need for register allocator
 
 4 - link and run

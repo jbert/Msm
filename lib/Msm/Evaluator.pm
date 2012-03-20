@@ -1,6 +1,5 @@
 package Msm::Evaluator;
 use Modern::Perl;
-use Moose;
 
 # Inject eval methods
 {

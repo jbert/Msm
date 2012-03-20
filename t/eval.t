@@ -1,21 +1,12 @@
 #!/usr/bin/perl
-my @progs;
-BEGIN {
-    @progs = (
-            '(+ 2 3)',
-            '(+ (+ 1 2) (- 2 3))',
-            '(- 6 1 1 1 1 1 1 1 1 1 1 1 1)',
-            '(- 6 1 0 1 0 1 0 1 0 1 0 1 0)',
-
-            '(* 2 3)',
-        );
-}
-
-use Test::More tests => scalar @progs;
+use lib ('t', '../t');
+use Msm::Test::Data;
+use Test::More tests => scalar Msm::Test::Data->progs;
 use Msm;
 use Msm::Evaluator;
+use Modern::Perl;
 
-foreach my $prog (@progs) {
+foreach my $prog (Msm::Test::Data->progs) {
     test_prog($prog);
 }
 exit 0;
@@ -26,7 +17,6 @@ sub test_prog {
     my $parser = Msm::Parser->parser;
     my $ast = $parser->program($prog);
 
-    my $evaluator = Msm::Evaluator->new;
     my $result = $ast->eval;
 
     my $expected = mzscheme_eval($prog);
