@@ -2,6 +2,7 @@ package Msm::Runner;
 use Modern::Perl;
 use Moose;
 use Msm::Toc;
+use Msm::Evaluator;
 
 has 'engine_type', is => 'rw';
 

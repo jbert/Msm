@@ -1,5 +1,12 @@
 package Msm::Evaluator;
 use Modern::Perl;
+use Moose;
+
+sub run_ast {
+    my ($self, $ast) = @_;
+
+    return $ast->eval;
+}
 
 # Inject eval methods
 {

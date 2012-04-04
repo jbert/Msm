@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 my @engine_types;
 BEGIN {
-    @engine_types = qw(Toc);
+    @engine_types = qw(Evaluator Toc);
 }
 
 use lib ('t', '../t');
@@ -13,7 +13,7 @@ use Modern::Perl;
 use File::Temp qw(tempfile);
 
 #foreach my $engine_type (qw(Toc Eval)) {
-foreach my $engine_type (qw(Toc)) {
+foreach my $engine_type (@engine_types) {
     my $runner = Msm::Runner->new(engine_type => $engine_type);
     foreach my $prog (Msm::Test::Data->progs) {
         test_prog($prog, $runner);
