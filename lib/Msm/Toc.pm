@@ -2,6 +2,31 @@ package Msm::Toc;
 use Modern::Perl;
 use Moose;
 
+use File::Temp qw(tempfile);
+
+sub run_ast {
+    my ($self, $ast) = @_;
+
+    my $c_code = $ast->to_c;
+    my ($c_fh, $c_file) = tempfile('/tmp/tocXXXX', SUFFIX => '.c', UNLINK => 1);
+    print $c_fh $c_code;
+    close $c_fh or die "can't close c fh $c_file : $!";
+
+    my ($exe_fh, $exe_file) = tempfile('/tmp/tocXXXX', UNLINK => 1);
+    close $exe_fh;
+    $self->_compile_c($c_file, $exe_file);
+
+    my $result = `$exe_file`;
+    chomp $result;
+    return $result;
+}
+
+sub _compile_c {
+    my ($self, $c_file, $exe_file) = @_;
+    my $rc = system("gcc $c_file -o $exe_file");
+    return $rc == 0;
+}
+
 # Inject 'toc' methods
 {
     package Msm::AST::Node;
