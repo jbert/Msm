@@ -3,7 +3,7 @@ use Modern::Perl;
 
 # Inject eval methods
 {
-    package Msm::AST::node;
+    package Msm::AST::Node;
 
     sub eval { die "Don't know how to eval: " . ref $_[0]; }
 }

@@ -4,7 +4,7 @@ use Moose;
 
 # Inject 'toc' methods
 {
-    package Msm::AST::node;
+    package Msm::AST::Node;
 
     sub to_c { die "Don't know how to to_c: " . ref $_[0]; }
 }
