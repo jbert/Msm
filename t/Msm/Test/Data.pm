@@ -18,6 +18,9 @@ my @progs = (
 
         '(* 2 3)',
     );
+#@progs = (
+#        '(- 6 1)',
+#);
 
 sub progs {
     if ($ENV{MSM_TEST_ONE_ONLY}) {

@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 my @engine_types;
 BEGIN {
-    @engine_types = qw(Evaluator Toc);
+#    @engine_types = qw(Asm);
+    @engine_types = qw(Asm Evaluator Toc);
 }
 
 use lib ('t', '../t');

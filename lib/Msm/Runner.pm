@@ -3,6 +3,7 @@ use Modern::Perl;
 use Moose;
 use Msm::Toc;
 use Msm::Evaluator;
+use Msm::Asm;
 
 has 'engine_type', is => 'rw';
 

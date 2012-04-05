@@ -21,6 +21,15 @@ DONE - lex and parse language to an AST
         - do op (leave result on stack)
     - prog postamble consumes stack for result
 
+    - TODO:
+        DONE - support multiple args to op:
+            (op a b c)
+    - handle -ve numbers
+        - maybe just need output?
+        - use decimal output
+            - add sign to existing routine
+
+
 3 - compile AST to x64 assembler 
     DONE a - eval first
     b - then go via C 
