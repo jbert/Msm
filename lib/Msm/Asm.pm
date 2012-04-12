@@ -2,14 +2,24 @@ package Msm::Asm;
 use Modern::Perl;
 use Moose;
 
+has '_data_section', is => 'rw';
+has '_text_section', is => 'rw';
+
 use File::Temp qw(tempfile);
 
 sub run_ast {
     my ($self, $ast) = @_;
 
-    my $asm_code = $ast->to_asm;
+    $self->_data_section('');
+    $self->_text_section('');
+
+    $self->_emit_text($ast->to_asm);
+    $self->_emit_text($self->_lib_text);
+    $self->_emit_data($self->_lib_data);
+
     my ($asm_fh, $asm_file) = tempfile('/tmp/asmXXXX', SUFFIX => '.asm', UNLINK => 0);
-    print $asm_fh $asm_code;
+    print $asm_fh $self->_data_section;
+    print $asm_fh $self->_text_section;
     close $asm_fh or die "can't close asm fh $asm_file : $!";
 
     my ($exe_fh, $exe_file) = tempfile('/tmp/asmXXXX', UNLINK => 1);
@@ -19,6 +29,16 @@ sub run_ast {
     my $result = system($exe_file);
     $result >>= 8; # get exit code
     return $result;
+}
+
+sub _emit_text {
+    my ($self, $text) = @_;
+    $self->_text_section($self->_text_section . $text);
+}
+
+sub _emit_data {
+    my ($self, $text) = @_;
+    $self->_data_section($self->_data_section . $text);
 }
 
 sub _compile_asm {
@@ -112,4 +132,19 @@ EOPREAMBLE
 EOPOSTAMBLE
     }
 }
+
+sub _lib_text {
+    my ($self) = @_;
+    return << "EOLIB";
+;
+; Msm library code
+;
+EOLIB
+}
+
+sub _lib_data {
+    my ($self) = @_;
+    return '';
+}
+
 1;
