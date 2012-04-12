@@ -23,6 +23,10 @@ BEGIN {
         '(- +1 -1)',
 
         '(* 2 3)',
+        '(* -2 3)',
+        '(* -2 -3)',
+        '(* 0 3)',
+        '(* 0 -3)',
     );
     @progs = ($ENV{MSM_TEST_PROG}) if $ENV{MSM_TEST_PROG};
 }
