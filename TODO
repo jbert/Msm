@@ -1,38 +1,16 @@
-- assembler...
-    - 64bit mode
-        - what reg's do we have?
-            - rax->rdx and others
-        DONE - why "push/pop ebx' not allowed in 64bit mode
-            - becuase you need to push/pop rbx
-
-
-DONE - define simple language (e.g. arithmetic s-exprs)
-
-DONE - lex and parse language to an AST
-
-- move some of the to_c test infrastructure into module
-
-- define single 'run' interface, taking an engine (eval, toc, asm) to uset:e 
-
-- implement asm backend
-    - (op x y) should be:
-        - push x
-        - push y
-        - do op (leave result on stack)
-    - prog postamble consumes stack for result
-
-    - TODO:
-        DONE - support multiple args to op:
-            (op a b c)
+- asm:
     - handle -ve numbers
         - maybe just need output?
         - use decimal output
             - add sign to existing routine
 
+- add conditionals
 
-3 - compile AST to x64 assembler 
-    DONE a - eval first
-    b - then go via C 
-    c - then via assembler stack everything, to avoid need for register allocator
+- add vars?
 
-4 - link and run
+- add lambda?
+
+- structure tests by language feature so can just run some
+    - and have 'run one' env var
+
+- add timings/benchmarks of engines

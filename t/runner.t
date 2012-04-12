@@ -1,13 +1,31 @@
 #!/usr/bin/perl
-my @engine_types;
+my (@engine_types, @progs);
 BEGIN {
 #    @engine_types = qw(Asm);
     @engine_types = qw(Asm Evaluator Toc);
+
+    @progs = (
+        '(+ 2 3)',
+        '(+ (+ 1 2) (- 2 3))',
+        '(- 6 1 1 1 1 1 1 1 1 1 1 1 1)',
+        '(- 6 1 0 1 0 1 0 1 0 1 0 1 0)',
+
+        '(- 0)',
+        '(- 0 0)',
+        '(+ 0 0)',
+        '(+ 0)',
+
+        '(+ 1 -1)',
+        '(+ +1 -1)',
+        '(+ -1 -1)',
+        '(- +1 -1)',
+
+        '(* 2 3)',
+    );
 }
 
 use lib ('t', '../t');
-use Msm::Test::Data;
-use Test::More tests => 2 * scalar(@engine_types) * scalar Msm::Test::Data->progs;
+use Test::More tests => 2 * scalar(@engine_types) * scalar @progs;
 use Msm::Runner;
 use Msm::Parser;
 use Modern::Perl;
@@ -16,7 +34,7 @@ use File::Temp qw(tempfile);
 #foreach my $engine_type (qw(Toc Eval)) {
 foreach my $engine_type (@engine_types) {
     my $runner = Msm::Runner->new(engine_type => $engine_type);
-    foreach my $prog (Msm::Test::Data->progs) {
+    foreach my $prog (@progs) {
         test_prog($prog, $runner);
     }
 }
