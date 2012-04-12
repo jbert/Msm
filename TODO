@@ -8,6 +8,8 @@
 
 - add vars?
 
+- add cons/car/cdr?
+
 - add lambda?
 
 DONE - structure tests by language feature so can just run some
