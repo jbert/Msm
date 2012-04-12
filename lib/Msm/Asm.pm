@@ -63,13 +63,13 @@ EOASM
         my $asm_instruction;
         given ($opval) {
             when ('+')    {
-                $asm_instruction = 'add rax, rbx';
+                $asm_instruction = 'add';
             }
             when ('-')    {
-                $asm_instruction = 'sub rax, rbx';
+                $asm_instruction = 'sub';
             }
             when ('*')    {
-                $asm_instruction = 'mul rbx';
+                $asm_instruction = 'imul';
             }
             default { die "Unsupported op: " . $op->val; }
         }
@@ -81,7 +81,7 @@ EOASM
                 $result .= <<"EOASM";
     pop rbx
     pop rax
-    $asm_instruction
+    $asm_instruction rax, rbx
     push rax
 EOASM
             }
