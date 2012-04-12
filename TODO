@@ -10,7 +10,7 @@
 
 - add lambda?
 
-- structure tests by language feature so can just run some
-    - and have 'run one' env var
+DONE - structure tests by language feature so can just run some
+    DONE - and have 'run one' env var
 
 - add timings/benchmarks of engines

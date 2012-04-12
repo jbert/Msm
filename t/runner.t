@@ -1,8 +1,10 @@
 #!/usr/bin/perl
+use Modern::Perl;
 my (@engine_types, @progs);
 BEGIN {
 #    @engine_types = qw(Asm);
     @engine_types = qw(Asm Evaluator Toc);
+    @engine_types = ($ENV{MSM_TEST_ENGINE}) if $ENV{MSM_TEST_ENGINE};
 
     @progs = (
         '(+ 2 3)',
@@ -22,13 +24,13 @@ BEGIN {
 
         '(* 2 3)',
     );
+    @progs = ($ENV{MSM_TEST_PROG}) if $ENV{MSM_TEST_PROG};
 }
 
 use lib ('t', '../t');
 use Test::More tests => 2 * scalar(@engine_types) * scalar @progs;
 use Msm::Runner;
 use Msm::Parser;
-use Modern::Perl;
 use File::Temp qw(tempfile);
 
 #foreach my $engine_type (qw(Toc Eval)) {
@@ -44,6 +46,7 @@ sub test_prog {
     my ($prog, $runner) = @_;
 
     my $parser = Msm::Parser->parser;
+    note("Prog: $prog");
     my $ast = $parser->program($prog);
 
     my $result = $runner->run_ast($ast);
