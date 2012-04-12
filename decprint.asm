@@ -6,25 +6,25 @@ section .bss
     ; 64bit integer has <= 20 decimal digits
     ; plus one for sign
     ; plus one for luck
-    decprint_buf:   resb 22
-    n:              resd 1
+    print_decimal_buf:      resb 22
+    n:                      resd 1
 
 section .text
     global  _start
 
 _start:
     mov     rax, 13
-    call    decprint
+    call    print_decimal
     call    print_newline
 
     mov     rax, 13
     neg     eax
-    call    decprint
+    call    print_decimal
     call    print_newline
 
     mov     eax, 2
     neg     eax
-    call    decprint
+    call    print_decimal
     call    print_newline
 
     ; exit
@@ -33,8 +33,8 @@ _start:
     int     80h
 
 
-decprint:
-    mov     rbx, decprint_buf
+print_decimal:
+    mov     rbx, print_decimal_buf
 
     mov     r8, 0
 
@@ -75,7 +75,7 @@ decprint:
     mov     rdx, 1
     int     80h
     dec     rcx
-    cmp     rcx, decprint_buf
+    cmp     rcx, print_decimal_buf
     jnc     .print_digit
 
     ret
