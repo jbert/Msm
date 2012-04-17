@@ -19,7 +19,7 @@ boolean: m{^#[tf]}
 integer: m{[+-]?\d+}
     { Msm::AST::Integer->new({val => $item[1]}) }
 
-operator: m{[a-z\d_+\-*/]+}
+operator: m{[a-z\d_+\-*/?]+}
     { Msm::AST::Operator->new({val => $item[1]}) }
 
 EOG

@@ -9,6 +9,13 @@ package Msm::AST;
     use Moose;
     extends 'Msm::AST::Node';
     has 'val', is => 'rw';
+
+    sub eq {
+        my ($self, $other) = @_;
+        return unless ref $other eq ref $self;      # Must be same type
+        return unless $other->val eq $self->val;    # Must be same val
+        return 1;                                   # All ok
+    }
 }
 {
     package Msm::AST::Boolean;

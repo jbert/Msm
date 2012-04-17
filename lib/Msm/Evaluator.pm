@@ -53,6 +53,11 @@ sub run_ast {
                 my $is_true = ($condition->isa('Msm::AST::Boolean') && $condition->val eq '#t');
                 $result = $is_true ? $args[0]: $args[1];
             }
+            when ('eq?')    {
+                die "eq? requires 2 args" unless scalar @args == 2;
+                my $is_true = $args[0]->eq($args[1]);
+                return Msm::AST::Boolean->new({val => $is_true ? '#t' : '#f'});
+            }
             default { die "Unsupported op: " . $op->val; }
         }
         return $result;
