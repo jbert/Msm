@@ -34,6 +34,14 @@ sub _compile_c {
     sub to_c { die "Don't know how to to_c: " . ref $_[0]; }
 }
 {
+    package Msm::AST::Boolean;
+
+    sub to_c { 
+        my ($self) = @_;
+        return $self->val eq '#t' ? 1 : 0;
+    }
+}
+{
     package Msm::AST::Integer;
 
     sub to_c { return $_[0]->val; }
@@ -57,6 +65,10 @@ sub _compile_c {
             }
             when ('*')    {
                 $result = join(" $opval ", @args);
+            }
+            when ('if')    {
+                die "if requires 3 arguments" unless scalar @args == 3;
+                $result = "($args[0] ? $args[1] : $args[2])";
             }
             default { die "Unsupported op: " . $op->val; }
         }
