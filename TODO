@@ -1,18 +1,10 @@
-- asm:
-    DONE - handle -ve numbers
-        - maybe just need output?
-        - use decimal output
-            - add sign to existing routine
+- add timing support to each backend
+    - sep runtime and compile time?
 
-DONE - add conditionals
-    DONE - 0 is false in scheme
-    - needs concept of true and false
-        - scheme compatible
-        - add literals (#t and #f)
-
-- add equality testing
-    - returns boolean
-    '(if (eq? (+ 1 2) (* 1 2)) 1 2)'
+- support enough scheme to write a prime sieve....
+    - storage?
+    - recursion/looping?
+    - lambda?
 
 - add support for programs with boolean value?
     - (eq? 1 2)
