@@ -76,6 +76,7 @@ sub _compile_asm {
     sub to_asm {
         my $val = $_[0]->val;
         return <<"EOASM";
+    ; Integer $val
     mov     rax, $val
     push    rax
 EOASM
@@ -88,6 +89,7 @@ EOASM
         my $val = $_[0]->val;
         my $asm_val = $val eq '#t' ? 1 : 0;
         return <<"EOASM";
+    ; Boolean $val
     mov     rax, $asm_val
     push    rax
 EOASM
@@ -99,12 +101,18 @@ EOASM
     sub to_asm { 
         my ($self) = @_;
 
-        my $result;
         my $op = $self->op;
         my $opval = $self->op->val;
 
+        my $result = <<"EOASM";
+    ; OP Expression $opval
+EOASM
+
         if ($opval eq 'if') {
             return $self->_if_to_asm;
+        }
+        elsif ($opval eq 'eq?') {
+            return $self->_eq_to_asm;
         }
         my $asm_instruction;
         given ($opval) {
@@ -137,6 +145,31 @@ EOASM
         return $result;
     }
 
+    sub _eq_to_asm {
+        my ($self) = @_;
+
+        my @args = @{$self->args};
+        die "eq? requires 2 args" unless scalar @args == 2;
+
+        my $result = <<"EOASM";
+    ; eq OP
+EOASM
+        $result .= join ("\n", map { $_->to_asm } @args);
+        my $label_suffix = int(rand(1_000_000));
+        $result .= <<"EOASM";
+    pop     rbx
+    pop     rax
+    cmp     rax, rbx
+
+    mov     rax, 0      ; Not equal, leave z flag alone
+    jnz     .if_diff_$label_suffix
+    mov     rax, 1
+.if_diff_$label_suffix:
+    push    rax
+
+EOASM
+    }
+
     sub _if_to_asm {
         my ($self) = @_;
 
@@ -145,7 +178,10 @@ EOASM
 
         my $condition = shift @args;
         # Push condition
-        my $result = $condition->to_asm;
+        my $result = <<"EOASM";
+    ; if OP
+EOASM
+        $result .= $condition->to_asm;
         my $if_true_asm = $args[0]->to_asm;
         my $if_false_asm = $args[1]->to_asm;
 

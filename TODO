@@ -14,6 +14,10 @@ DONE - add conditionals
     - returns boolean
     '(if (eq? (+ 1 2) (* 1 2)) 1 2)'
 
+- add support for programs with boolean value?
+    - (eq? 1 2)
+        - would need to carry expression type info through asm + toc?
+
 - add strings
     - add '(error "string")'
     - add (if 1 1 (error "not evaluated"))
