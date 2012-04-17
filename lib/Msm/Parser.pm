@@ -10,8 +10,11 @@ program: sexp(s?)
 sexp: '(' operator item(s?) ')'
     { Msm::AST::Expression->new({op => $item[2], args => $item[3]})  }
 
-item: integer | sexp
+item: integer | boolean | sexp
     { $item[1]; }
+
+boolean: m{^#[tf]}
+    { Msm::AST::Boolean->new({val => $item[1]}) }
 
 integer: m{[+-]?\d+}
     { Msm::AST::Integer->new({val => $item[1]}) }

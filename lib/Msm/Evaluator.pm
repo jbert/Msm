@@ -17,7 +17,7 @@ sub run_ast {
 {
     package Msm::AST::Atom;
 
-    sub eval { return $_[0]->val; }
+    sub eval { return $_[0]; }
 }
 {
     package Msm::AST::Expression;
@@ -31,15 +31,27 @@ sub run_ast {
         given ($op->val) {
             when ('+')    {
                 $result = 0;
-                $result += $_ for @args;
+#                use Data::Dumper;
+#                warn Data::Dumper::Dumper(\@args);
+                $result += $_->val for @args;
+                $result = Msm::AST::Integer->new({val => $result});
             }
             when ('-')    {
                 $result = shift @args;
-                $result -= $_ for @args;
+                $result = $result->val;
+                $result -= $_->val for @args;
+                $result = Msm::AST::Integer->new({val => $result});
             }
             when ('*')    {
                 $result = 1;
-                $result *= $_ for @args;
+                $result *= $_->val for @args;
+                $result = Msm::AST::Integer->new({val => $result});
+            }
+            when ('if')    {
+                die "if requires 3 args" unless scalar @args == 3;
+                my $condition = shift @args;
+                my $is_true = ($condition->isa('Msm::AST::Boolean') && $condition->val eq '#t');
+                $result = $is_true ? $args[0]: $args[1];
             }
             default { die "Unsupported op: " . $op->val; }
         }
@@ -52,9 +64,10 @@ sub run_ast {
     sub eval { 
         my ($self) = @_;
 
-        my $result;
         my @vals = map { $_->eval } @{$self->exps};
-        return $vals[-1];
+#        use Data::Dumper;
+#        warn Data::Dumper::Dumper(\@vals);
+        return $vals[-1]->val;
     }
 }
 

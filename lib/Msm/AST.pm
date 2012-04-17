@@ -11,6 +11,11 @@ package Msm::AST;
     has 'val', is => 'rw';
 }
 {
+    package Msm::AST::Boolean;
+    use Moose;
+    extends 'Msm::AST::Atom';
+}
+{
     package Msm::AST::Integer;
     use Moose;
     extends 'Msm::AST::Atom';

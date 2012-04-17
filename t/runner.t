@@ -7,6 +7,8 @@ BEGIN {
     @engine_types = ($ENV{MSM_TEST_ENGINE}) if $ENV{MSM_TEST_ENGINE};
 
     @progs = (
+        '(if #t 1 2)',
+
         '(+ 2 3)',
         '(+ (+ 1 2) (- 2 3))',
         '(- 6 1 1 1 1 1 1 1 1 1 1 1 1)',
