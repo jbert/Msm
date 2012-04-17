@@ -70,6 +70,10 @@ sub _compile_c {
                 die "if requires 3 arguments" unless scalar @args == 3;
                 $result = "($args[0] ? $args[1] : $args[2])";
             }
+            when ('eq?')    {
+                die "eq? requires 2 arguments" unless scalar @args == 2;
+                $result = "($args[0] == $args[1]) ? 1 : 0";
+            }
             default { die "Unsupported op: " . $op->val; }
         }
         return '(' . $result . ')';
