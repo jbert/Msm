@@ -4,17 +4,27 @@
         - use decimal output
             - add sign to existing routine
 
-- add conditionals
-    - 0 is false in scheme
+DONE - add conditionals
+    DONE - 0 is false in scheme
     - needs concept of true and false
         - scheme compatible
         - add literals (#t and #f)
-        - add comparison (= or eq?)
+
+- add equality testing
+    - returns boolean
+    '(if (eq? (+ 1 2) (* 1 2)) 1 2)'
 
 - add strings
     - add '(error "string")'
     - add (if 1 1 (error "not evaluated"))
         - need nicer code to plug in ops
+
+- move the "die unless if has 3 args" code to one place
+    - Parser?
+    - AST validator?
+    - Common code for runner?
+    - MSM::AST::IfExpression?
+        - would allow easy handling of eager/lazy eval
 
 - add vars?
 

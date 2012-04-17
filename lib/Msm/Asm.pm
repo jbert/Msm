@@ -82,6 +82,18 @@ EOASM
     }
 }
 {
+    package Msm::AST::Boolean;
+
+    sub to_asm {
+        my $val = $_[0]->val;
+        my $asm_val = $val eq '#t' ? 1 : 0;
+        return <<"EOASM";
+    mov     rax, $asm_val
+    push    rax
+EOASM
+    }
+}
+{
     package Msm::AST::Expression;
 
     sub to_asm { 
@@ -91,6 +103,9 @@ EOASM
         my $op = $self->op;
         my $opval = $self->op->val;
 
+        if ($opval eq 'if') {
+            return $self->_if_to_asm;
+        }
         my $asm_instruction;
         given ($opval) {
             when ('+')    {
@@ -120,6 +135,33 @@ EOASM
 
         }
         return $result;
+    }
+
+    sub _if_to_asm {
+        my ($self) = @_;
+
+        my @args = @{$self->args};
+        die "If requires 3 args" unless scalar @args == 3;
+
+        my $condition = shift @args;
+        # Push condition
+        my $result = $condition->to_asm;
+        my $if_true_asm = $args[0]->to_asm;
+        my $if_false_asm = $args[1]->to_asm;
+
+        my $label_suffix = int(rand(1_000_000));
+        $result .= <<"EOASM";
+    pop     rax
+    cmp     rax, 0
+    jnz     .if_true_$label_suffix
+.if_false_$label_suffix:
+    $if_false_asm
+    jmp     .if_cont_$label_suffix
+
+.if_true_$label_suffix:
+    $if_true_asm
+.if_cont_$label_suffix:
+EOASM
     }
 }
 {
