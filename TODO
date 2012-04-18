@@ -2,16 +2,18 @@
     - (eq? 1 2)
         - would need to carry expression type info through asm + toc?
 
-- need to allow 'identifier' instead of operator as 1st position in sexp
-    - so drop the ast type
-    - or assign the ast type based on identifier position?
+DONE - add AST validation as a seperate stage, to avoid repeated code in runners
+
+DONE - need to allow 'identifier' instead of operator as 1st position in sexp
+    DONE - so drop the ast type
+    DONE - or assign the ast type based on identifier position?
 
 - add strings
     - add '(error "string")'
     - add (if 1 1 (error "not evaluated"))
         - need nicer code to plug in ops
 
-- move the "die unless if has 3 args" code to one place
+DONE - move the "die unless if has 3 args" code to one place
     - Parser?
     - AST validator?
     - Common code for runner?

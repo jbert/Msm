@@ -2,6 +2,8 @@ package Msm::Evaluator;
 use Modern::Perl;
 use Moose;
 
+my %BINDINGS;
+
 sub run_ast {
     my ($self, $ast) = @_;
 
@@ -20,6 +22,16 @@ sub run_ast {
     sub eval { return $_[0]; }
 }
 {
+    package Msm::AST::Identifier;
+
+    sub eval { 
+        my ($self) = @_;
+        my $value = $BINDINGS{$self->val};
+        die "Unbound variable: $self" unless defined $value;
+        return $value;
+    }
+}
+{
     package Msm::AST::Sexp;
 
     sub eval { 
@@ -28,14 +40,16 @@ sub run_ast {
         my $result;
         my @items = @{$self->items};
         my $op = shift @items;
-        $op = $op->eval;
+
+        die "Sexp in op position not yet supported" unless $op->isa('Msm::AST::Atom');
+        my $opval = $op->val;
+
+        return $self->_eval_let(@items) if $opval eq 'let';
 
         my @args = map { $_->eval } @items;
-        given ($op->val) {
+        given ($opval) {
             when ('+')    {
                 $result = 0;
-#                use Data::Dumper;
-#                warn Data::Dumper::Dumper(\@args);
                 $result += $_->val for @args;
                 $result = Msm::AST::Integer->new({val => $result});
             }
@@ -51,19 +65,29 @@ sub run_ast {
                 $result = Msm::AST::Integer->new({val => $result});
             }
             when ('if')    {
-                die "if requires 3 args" unless scalar @args == 3;
                 my $condition = shift @args;
                 my $is_true = ($condition->isa('Msm::AST::Boolean') && $condition->val eq '#t');
                 $result = $is_true ? $args[0]: $args[1];
             }
             when ('eq?')    {
-                die "eq? requires 2 args" unless scalar @args == 2;
                 my $is_true = $args[0]->eq($args[1]);
                 return Msm::AST::Boolean->new({val => $is_true ? '#t' : '#f'});
             }
             default { die "Unsupported op: " . $op->val; }
         }
         return $result;
+    }
+
+    sub _eval_let {
+        my ($self, @items) = @_;
+        my $bindings = shift @items;
+        foreach my $binding (@{$bindings->items}) {
+            my $identifier = $binding->items->[0];
+            my $value      = $binding->items->[1];
+            $BINDINGS{$identifier->val} = $value->eval;
+        }
+        my @vals = map { $_->eval } @items;
+        return $vals[-1];
     }
 }
 {
@@ -72,6 +96,8 @@ sub run_ast {
     sub eval { 
         my ($self) = @_;
 
+#        use Data::Dumper;
+#        warn Data::Dumper::Dumper($self->sexps);
         my @vals = map { $_->eval } @{$self->sexps};
 #        use Data::Dumper;
 #        warn Data::Dumper::Dumper(\@vals);
