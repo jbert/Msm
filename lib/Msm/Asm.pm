@@ -96,23 +96,24 @@ EOASM
     }
 }
 {
-    package Msm::AST::Expression;
+    package Msm::AST::Sexp;
 
     sub to_asm { 
         my ($self) = @_;
 
-        my $op = $self->op;
-        my $opval = $self->op->val;
+        my @items = @{$self->items};
+        my $op = shift @items;
+        my $opval = $op->val;
 
         my $result = <<"EOASM";
     ; OP Expression $opval
 EOASM
 
         if ($opval eq 'if') {
-            return $self->_if_to_asm;
+            return $self->_if_to_asm(@items);
         }
         elsif ($opval eq 'eq?') {
-            return $self->_eq_to_asm;
+            return $self->_eq_to_asm(@items);
         }
         my $asm_instruction;
         given ($opval) {
@@ -129,7 +130,7 @@ EOASM
         }
 
         my $have_two_args = 0;
-        foreach my $arg (@{$self->args}) {
+        foreach my $arg (@items) {
             $result .= $arg->to_asm;
             if ($have_two_args) {
                 $result .= <<"EOASM";
@@ -146,15 +147,14 @@ EOASM
     }
 
     sub _eq_to_asm {
-        my ($self) = @_;
+        my ($self, @items) = @_;
 
-        my @args = @{$self->args};
-        die "eq? requires 2 args" unless scalar @args == 2;
+        die "eq? requires 2 args" unless scalar @items == 2;
 
         my $result = <<"EOASM";
     ; eq OP
 EOASM
-        $result .= join ("\n", map { $_->to_asm } @args);
+        $result .= join ("\n", map { $_->to_asm } @items);
         my $label_suffix = int(rand(1_000_000));
         $result .= <<"EOASM";
     pop     rbx
@@ -171,19 +171,18 @@ EOASM
     }
 
     sub _if_to_asm {
-        my ($self) = @_;
+        my ($self, @items) = @_;
 
-        my @args = @{$self->args};
-        die "If requires 3 args" unless scalar @args == 3;
+        die "If requires 3 args" unless scalar @items == 3;
 
-        my $condition = shift @args;
+        my $condition = shift @items;
         # Push condition
         my $result = <<"EOASM";
     ; if OP
 EOASM
         $result .= $condition->to_asm;
-        my $if_true_asm = $args[0]->to_asm;
-        my $if_false_asm = $args[1]->to_asm;
+        my $if_true_asm = $items[0]->to_asm;
+        my $if_false_asm = $items[1]->to_asm;
 
         my $label_suffix = int(rand(1_000_000));
         $result .= <<"EOASM";
@@ -211,7 +210,7 @@ EOASM
 
 _start:
 EOPREAMBLE
-        my @code = map { $_->to_asm } @{$self->exps};
+        my @code = map { $_->to_asm } @{$self->sexps};
         $result .= join("\n", @code);
         $result .= <<"EOPOSTAMBLE";
     call    print_decimal

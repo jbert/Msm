@@ -7,6 +7,11 @@ BEGIN {
     @engine_types = ($ENV{MSM_TEST_ENGINE}) if $ENV{MSM_TEST_ENGINE};
 
     @progs = (
+#        '(let ((a 1) (b 2)) (+ a b))',
+#        '(let ((a 1) (b 2))
+#            (let ((a 3))
+#                (+ a b)))',
+#
         '(if (eq? #t #f) 1 2)',
         '(if (eq? #f #t) 1 2)',
         '(if (eq? #f #f) 1 2)',

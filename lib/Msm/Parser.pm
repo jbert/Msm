@@ -5,22 +5,24 @@ use Msm::AST;
 my $grammar = <<'EOG';
 
 program: sexp(s?)
-    { Msm::AST::Program->new({exps => $item[1]}) }
+    { Msm::AST::Program->new({sexps => $item[1]}) }
 
-sexp: '(' operator item(s?) ')'
-    { Msm::AST::Expression->new({op => $item[2], args => $item[3]})  }
+sexp: '(' item(s?) ')'
+    { Msm::AST::Sexp->new({items => $item[2]})  }
 
-item: integer | boolean | sexp
+item: atom | sexp
+
+atom: integer | boolean | identifier
     { $item[1]; }
+
+identifier: m{[a-z\d_+\-*/?]+}
+    { Msm::AST::Identifier->new({val => $item[1]}) }
 
 boolean: m{^#[tf]}
     { Msm::AST::Boolean->new({val => $item[1]}) }
 
 integer: m{[+-]?\d+}
     { Msm::AST::Integer->new({val => $item[1]}) }
-
-operator: m{[a-z\d_+\-*/?]+}
-    { Msm::AST::Operator->new({val => $item[1]}) }
 
 EOG
 

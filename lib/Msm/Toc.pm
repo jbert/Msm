@@ -47,15 +47,16 @@ sub _compile_c {
     sub to_c { return $_[0]->val; }
 }
 {
-    package Msm::AST::Expression;
+    package Msm::AST::Sexp;
 
     sub to_c { 
         my ($self) = @_;
 
         my $result;
-        my $op = $self->op;
-        my $opval = $self->op->val;
-        my @args = map { $_->to_c } @{$self->args};
+        my @items = @{$self->items};
+        my $op = shift @items;
+        my $opval = $op->val;
+        my @args = map { $_->to_c } @items;
         given ($opval) {
             when ('+')    {
                 $result = join(" $opval ", @args);
@@ -91,7 +92,7 @@ sub _compile_c {
 int main() {
     int result = 
 EOPREAMBLE
-        my @expressions = map { $_->to_c } @{$self->exps};
+        my @expressions = map { $_->to_c } @{$self->sexps};
         $result .= join(",", @expressions);
         $result .= <<"EOPOSTAMBLE";
 ;

@@ -20,14 +20,17 @@ sub run_ast {
     sub eval { return $_[0]; }
 }
 {
-    package Msm::AST::Expression;
+    package Msm::AST::Sexp;
 
     sub eval { 
         my ($self) = @_;
 
         my $result;
-        my $op = $self->op;
-        my @args = map { $_->eval } @{$self->args};
+        my @items = @{$self->items};
+        my $op = shift @items;
+        $op = $op->eval;
+
+        my @args = map { $_->eval } @items;
         given ($op->val) {
             when ('+')    {
                 $result = 0;
@@ -69,13 +72,11 @@ sub run_ast {
     sub eval { 
         my ($self) = @_;
 
-        my @vals = map { $_->eval } @{$self->exps};
+        my @vals = map { $_->eval } @{$self->sexps};
 #        use Data::Dumper;
 #        warn Data::Dumper::Dumper(\@vals);
         return $vals[-1]->val;
     }
 }
-
-1;
 
 1;

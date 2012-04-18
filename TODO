@@ -1,14 +1,10 @@
-- add timing support to each backend
-    - sep runtime and compile time?
-
-- support enough scheme to write a prime sieve....
-    - storage?
-    - recursion/looping?
-    - lambda?
-
 - add support for programs with boolean value?
     - (eq? 1 2)
         - would need to carry expression type info through asm + toc?
+
+- need to allow 'identifier' instead of operator as 1st position in sexp
+    - so drop the ast type
+    - or assign the ast type based on identifier position?
 
 - add strings
     - add '(error "string")'
@@ -23,10 +19,46 @@
         - would allow easy handling of eager/lazy eval
 
 - add vars?
+    - use let form
+        - (let ((a 1) (b 2)) (+ a b))
+        - (let ((a 1) (b 2))
+            (let ((a 3))
+                (+ a b)))
+        - attach a lexenv to each ast expression
+            - let introduces new lexenv
+                - otherwise use containing lexenv
+            - each runner needs to chain up
+                TOC: Use C nested scopes? :-)
+                    - introduce named result vars for each expression
+                    - then evaluate each expression in a lexical scope
+                    - then allow let to introduce bindings in that scope
+                Evaluator:
+                    - maintain a @env = ( { a => 3, b => 2}, {b => 3} )
+                    - need to push pad, pop pad at start/end of each let
+                Asm:
+                    - same as C?
+                        - means not being stack based any more?
+                            - nope, still stack based
+                            - but we track lex vars into named slots
+                            and know when we make a new slot (shadowing) and when we re-use
+                        - alternatives?
 
 - add cons/car/cdr?
 
 - add lambda?
+
+- add timing support to each backend
+    - sep runtime and compile time?
+
+- support enough scheme to write a prime sieve....
+    - maybe support "DIV" prime finding first
+        - make mzscheme test runner a real runner?
+        - prefix with (require rnrs/base-6)
+        - then can have 'mod'
+    - first write a prime sieve in scheme...
+    - storage?
+    - recursion/looping?
+    - lambda?
 
 DONE - structure tests by language feature so can just run some
     DONE - and have 'run one' env var

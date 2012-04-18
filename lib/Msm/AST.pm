@@ -28,21 +28,20 @@ package Msm::AST;
     extends 'Msm::AST::Atom';
 }
 {
-    package Msm::AST::Operator;
+    package Msm::AST::Identifier;
     use Moose;
     extends 'Msm::AST::Atom';
 }
 {
-    package Msm::AST::Expression;
+    package Msm::AST::Sexp;
     use Moose;
     extends 'Msm::AST::Node';
-    has 'op', is => 'rw';
-    has 'args', is => 'rw';
+    has 'items', is => 'rw';
 }
 {
     package Msm::AST::Program;
     use Moose;
-    has 'exps', is => 'rw';
+    has 'sexps', is => 'rw';
 }
 
 1;
