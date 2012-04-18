@@ -12,6 +12,12 @@ BEGIN {
         '(let ((a 1) (b 2))
             (let ((a 3))
                 (+ a b)))',
+        '(let ((a 1) (b 2))
+            (+ (let ((a 3))
+                (+ a b))
+                a
+                b
+                10))',
 
         '(let ((a 1) (b 2))
             (let ((a (let ((a 11) (c 10)) (+ a c))))
