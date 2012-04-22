@@ -6,6 +6,11 @@ assembly. The goal is to parse the (simple!) language to an AST and then:
 - compile it via translation to C
 - 'compile' it via translation directly to assembler
 
+Update, for ease of checking, I seem to be implemeting a (very limited subset of) scheme
+(so I can run example code through mzscheme as well, to compare outputs). I currently have 3
+backends, an evaluator, a C generator and an ASM generator.
+
+
 INSTALLATION
 
 To install this module, run the following commands:
