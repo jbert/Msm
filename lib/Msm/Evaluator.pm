@@ -2,7 +2,7 @@ package Msm::Evaluator;
 use Modern::Perl;
 use Moose;
 
-my %BINDINGS;
+my @BINDINGS;
 
 sub run_ast {
     my ($self, $ast) = @_;
@@ -26,9 +26,11 @@ sub run_ast {
 
     sub eval { 
         my ($self) = @_;
-        my $value = $BINDINGS{$self->val};
-        die "Unbound variable: $self" unless defined $value;
-        return $value;
+        foreach my $binding (@BINDINGS) {
+            my $value = $binding->{$self->val};
+            return $value if defined $value;
+        }
+        die "Unbound variable: $self";
     }
 }
 {
@@ -81,12 +83,15 @@ sub run_ast {
     sub _eval_let {
         my ($self, @items) = @_;
         my $bindings = shift @items;
+        my %new_binding;
         foreach my $binding (@{$bindings->items}) {
             my $identifier = $binding->items->[0];
             my $value      = $binding->items->[1];
-            $BINDINGS{$identifier->val} = $value->eval;
+            $new_binding{$identifier->val} = $value->eval;
         }
+        unshift @BINDINGS, \%new_binding;
         my @vals = map { $_->eval } @items;
+        shift @BINDINGS;
         return $vals[-1];
     }
 }
