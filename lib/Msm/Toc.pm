@@ -41,6 +41,16 @@ sub _compile_c {
     sub expression  { return $_[0]->val; }
 }
 {
+    package Msm::AST::Identifier;
+
+    sub expression  { return $_[0]->_c_safe_val($_[0]->val); }
+    sub _c_safe_val {
+        my ($self) = @_;
+        # Many ways to do this...
+        return "_" . unpack('H*', $self->val);
+    }
+}
+{
     package Msm::AST::Boolean;
 
     sub expression {
@@ -99,7 +109,7 @@ sub _compile_c {
         $result .= "{\n";
         foreach my $binding (@{$bindings->items}) {
             # TODO - make c-safe identifier from scheme-safe identifier
-            my $identifier = $binding->items->[0]->val;
+            my $identifier = $binding->items->[0]->_c_safe_val;
             $result .= $binding->items->[1]->declare;
             my $value = $binding->items->[1]->expression;
             $result .= "int $identifier = $value;\n";

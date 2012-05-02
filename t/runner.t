@@ -7,6 +7,7 @@ BEGIN {
     @engine_types = ($ENV{MSM_TEST_ENGINE}) if $ENV{MSM_TEST_ENGINE};
 
     @progs = (
+        '(let ((-a 1) (*b* 2)) (+ -a *b*))',
         '(let ((a 1) (b 2)) (+ a b))',
         '(let ((a (+ 1 2)) (b 2)) (+ a b))',
         '(let ((a 1) (b 2))
