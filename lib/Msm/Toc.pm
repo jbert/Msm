@@ -41,7 +41,7 @@ sub _compile_c {
     sub expression  { return $_[0]->val; }
 }
 {
-    package Msm::AST::Boolan;
+    package Msm::AST::Boolean;
 
     sub expression {
         my ($self) = @_;
