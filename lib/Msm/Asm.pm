@@ -15,7 +15,7 @@ sub run_ast {
     $self->_bss_section('');
     $self->_text_section('');
 
-    $self->_emit_text($ast->to_asm);
+    $self->_emit_text($ast->to_asm($self));
     $self->_emit_text($self->_lib_text);
     $self->_emit_bss($self->_lib_bss);
     $self->_emit_data($self->_lib_data);
@@ -64,6 +64,16 @@ sub _compile_asm {
     return 1;
 }
 
+my @BINDINGS;
+
+sub _find_lexical {
+    my ($class, $name) = @_;
+    foreach my $frame (@BINDINGS) {
+        return $frame->{$name} if exists $frame->{$name};
+    }
+    die "Can't find lexical var [$name]";
+}
+
 # Inject 'to_asm' methods
 {
     package Msm::AST::Node;
@@ -96,10 +106,24 @@ EOASM
     }
 }
 {
+    package Msm::AST::Identifier;
+
+    sub to_asm {
+        my ($self, $runner) = @_;
+        my $val = $_[0]->val;
+        my $label = $runner->_find_lexical($val);
+        return <<"EOASM";
+    ; Identifier $val
+    mov     rax, [$label]
+    push    rax
+EOASM
+    }
+}
+{
     package Msm::AST::Sexp;
 
     sub to_asm { 
-        my ($self) = @_;
+        my ($self, $runner) = @_;
 
         my @items = @{$self->items};
         my $op = shift @items;
@@ -110,10 +134,13 @@ EOASM
 EOASM
 
         if ($opval eq 'if') {
-            return $self->_if_to_asm(@items);
+            return $self->_if_to_asm($runner, @items);
         }
         elsif ($opval eq 'eq?') {
-            return $self->_eq_to_asm(@items);
+            return $self->_eq_to_asm($runner, @items);
+        }
+        elsif ($opval eq 'let') {
+            return $self->_let_to_asm($runner, $result, @items);
         }
         my $asm_instruction;
         given ($opval) {
@@ -131,7 +158,7 @@ EOASM
 
         my $have_two_args = 0;
         foreach my $arg (@items) {
-            $result .= $arg->to_asm;
+            $result .= $arg->to_asm($runner);
             if ($have_two_args) {
                 $result .= <<"EOASM";
     pop rbx
@@ -146,15 +173,37 @@ EOASM
         return $result;
     }
 
-    sub _eq_to_asm {
-        my ($self, @items) = @_;
+    sub _let_to_asm {
+        my ($self, $runner, $result, @items) = @_;
 
-        die "eq? requires 2 args" unless scalar @items == 2;
+        my $bindings = shift @items;
+        my %new_binding;
+        foreach my $binding (@{$bindings->items}) {
+            my $identifier = $binding->items->[0];
+            my $label = Msm::Asm->_make_label;
+            $runner->_emit_bss(<<"EOBSS");
+    $label:      resb 8
+EOBSS
+            $result .= $binding->items->[1]->to_asm($runner);
+            $result .= <<"EOASM";
+    pop     rax
+    mov     [$label], rax
+EOASM
+            $new_binding{$identifier->val} = $label;
+        }
+        unshift @BINDINGS, \%new_binding;
+        $result .= $items[0]->to_asm($runner);        # Only one expression in let
+        shift @BINDINGS;
+        return $result;
+    }
+
+    sub _eq_to_asm {
+        my ($self, $runner, @items) = @_;
 
         my $result = <<"EOASM";
     ; eq OP
 EOASM
-        $result .= join ("\n", map { $_->to_asm } @items);
+        $result .= join ("\n", map { $_->to_asm($runner) } @items);
         my $label_suffix = int(rand(1_000_000));
         $result .= <<"EOASM";
     pop     rbx
@@ -171,18 +220,16 @@ EOASM
     }
 
     sub _if_to_asm {
-        my ($self, @items) = @_;
-
-        die "If requires 3 args" unless scalar @items == 3;
+        my ($self, $runner, @items) = @_;
 
         my $condition = shift @items;
         # Push condition
         my $result = <<"EOASM";
     ; if OP
 EOASM
-        $result .= $condition->to_asm;
-        my $if_true_asm = $items[0]->to_asm;
-        my $if_false_asm = $items[1]->to_asm;
+        $result .= $condition->to_asm($runner);
+        my $if_true_asm = $items[0]->to_asm($runner);
+        my $if_false_asm = $items[1]->to_asm($runner);
 
         my $label_suffix = int(rand(1_000_000));
         $result .= <<"EOASM";
@@ -203,14 +250,14 @@ EOASM
     package Msm::AST::Program;
 
     sub to_asm { 
-        my ($self) = @_;
+        my ($self, $runner) = @_;
 
         my $result = <<"EOPREAMBLE";
     global  _start
 
 _start:
 EOPREAMBLE
-        my @code = map { $_->to_asm } @{$self->sexps};
+        my @code = map { $_->to_asm($runner) } @{$self->sexps};
         $result .= join("\n", @code);
         $result .= <<"EOPOSTAMBLE";
     call    print_decimal
@@ -308,5 +355,12 @@ sub _lib_data {
     newline         db 10
 EODATA
 }
+
+my $LABEL_COUNTER = 1;
+sub _make_label {
+    my ($class) = @_;
+    return "result" . $LABEL_COUNTER++;
+}
+
 
 1;

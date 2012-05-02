@@ -1,3 +1,32 @@
+- make Msm/Evaluator pass $runner around and drop file-scope @BINDINGS
+    - possibly use mixin with asm
+
+- add test to check that asm doesn't leave stuff stacked up:
+    (+ 1 2)
+    (+ 3 4
+    (+ 
+        (let ((a 1)
+              (b 2))
+          (+ a b)
+          (- a b)))
+- add let support to Asm
+    - each declared variable needs storage
+    - need to handle shadowing of vars
+        - lexical context in perl is:
+            [
+                { name => asm_label, name2 => asm_label2 },
+                { name => asm_label3 }
+            }
+        - use same declare/expression model as Toc?
+            - poss rename 'declare'?
+        - identifier->expression chains up the lexical scopes
+            - emits 1st label found
+        - mixin codeshare with Eval?
+            - maybe save until we have lambda
+            - and Toc?
+            - 'asm_label' == 'global_c_var'
+
+
 - add 'emit' and nesting level for nice Toc 
 
 - add support for programs with boolean value?
