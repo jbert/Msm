@@ -65,7 +65,7 @@ use Modern::Perl;
             given ($opval) {
                 when ('let') {
                     die "let must have at least 2 arguments" unless scalar @items >= 2;
-                    my $bindings = $items[0];
+                    my $bindings = shift @items;
                     die "1st arg to let must be a sexp" unless $bindings->isa('Msm::AST::Sexp');
                     foreach my $binding (@{$bindings->items}) {
                         die "All bindings must be sexps" unless $binding->isa('Msm::AST::Sexp');
@@ -74,7 +74,8 @@ use Modern::Perl;
                         die "Each binding must begin with an identifier: " . ref $binding->items->[0]
                             unless $binding->items->[0]->isa('Msm::AST::Identifier');
                     }
-
+                    die "Let must have only one expression after bindings"
+                        unless scalar @items == 1;
                 }
                 when ('if') {
                     die "if requires 3 args" unless scalar @items == 3;
