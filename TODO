@@ -1,6 +1,16 @@
+- add 'emit' and nesting level for nice Toc 
+
 - add support for programs with boolean value?
     - (eq? 1 2)
         - would need to carry expression type info through asm + toc?
+
+    - TOC:
+        - Support ->declare and ->expression methods on each AST node
+        - ->declare is always called in statement context
+            - it is allowed to insert code to initialize the variable
+        - ->expression is always called in expression context cannot declare new vars
+
+- support non-c-safe identifier names 
 
 DONE - add AST validation as a seperate stage, to avoid repeated code in runners
 

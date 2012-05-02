@@ -4,9 +4,6 @@ use Moose;
 
 use File::Temp qw(tempfile);
 
-my $result_name_suffix = '0';
-my @RESULT_VAR_NAMES;
-
 sub run_ast {
     my ($self, $ast) = @_;
 
@@ -34,83 +31,82 @@ sub _compile_c {
 {
     package Msm::AST::Node;
 
-    sub to_c { die "Don't know how to to_c: " . ref $_[0]; }
+    sub declare     { die "Don't know how to declare: " . ref $_[0]; }
+    sub expression  { die "Don't know how to expression: " . ref $_[0]; }
 }
 {
-    package Msm::AST::Boolean;
+    package Msm::AST::Atom;
 
-    sub to_c { 
+    sub declare     { return '' }
+    sub expression  { return $_[0]->val; }
+}
+{
+    package Msm::AST::Boolan;
+
+    sub expression {
         my ($self) = @_;
         return $self->val eq '#t' ? 1 : 0;
     }
 }
 {
-    package Msm::AST::Integer;
-
-    sub to_c { return $_[0]->val; }
-}
-{
-    package Msm::AST::Identifier;
-
-    sub to_c { return $_[0]->val; }
-}
-{
     package Msm::AST::Sexp;
 
-    sub to_c { 
+    sub declare { 
         my ($self) = @_;
+        my $name = Msm::Toc->_new_name;
+        my $result = "int $name;\n";
+        $self->stash($name);
 
-        my $result;
         my @items = @{$self->items};
+
         my $op = shift @items;
         my $opval = $op->val;
+        return $self->_declare_let($result, @items) if $opval eq 'let';
 
-        return $self->_toc_let(@items) if $opval eq 'let';
+        $result .= $_->declare for @items;
 
-        my @args = map { $_->to_c } @items;
+        $result .= "$name = ";
+        my @args = map { $_->expression } @items;
         given ($opval) {
             when ('+')    {
-                $result = join(" $opval ", @args);
+                $result .= join(" $opval ", @args);
             }
             when ('-')    {
-                $result = join(" $opval ", @args);
+                $result .= join(" $opval ", @args);
             }
             when ('*')    {
-                $result = join(" $opval ", @args);
+                $result .= join(" $opval ", @args);
             }
             when ('if')    {
                 die "if requires 3 arguments" unless scalar @args == 3;
-                $result = "($args[0] ? $args[1] : $args[2])";
+                $result .= "($args[0] ? $args[1] : $args[2])";
             }
             when ('eq?')    {
                 die "eq? requires 2 arguments" unless scalar @args == 2;
-                $result = "($args[0] == $args[1]) ? 1 : 0";
+                $result .= "($args[0] == $args[1]) ? 1 : 0";
             }
             default { die "Unsupported op: " . $op->val; }
         }
-        return '(' . $result . ')';
+        $result .= ";\n";
+        return $result;
     }
+    sub expression { return $_[0]->stash; }
 
-    sub _toc_let {
-        my ($self, @items) = @_;
+    sub _declare_let {
+        my ($self, $result, @items) = @_;
+        my $name = $self->stash;
         my $bindings = shift @items;
-        my $result = Msm::Toc->_push_result_name . "\n{";
+        $result .= "{\n";
         foreach my $binding (@{$bindings->items}) {
             # TODO - make c-safe identifier from scheme-safe identifier
             my $identifier = $binding->items->[0]->val;
-            my $value      = $binding->items->[1];
-            $result .= <<"EOVAR";
-    int $identifier;
-    $identifier = 
-EOVAR
-            $result .= $value->to_c;
-            $result .= ';';
+            $result .= $binding->items->[1]->declare;
+            my $value = $binding->items->[1]->expression;
+            $result .= "int $identifier = $value;\n";
         }
-        my $this_result_name = Msm::Toc->_pop_result_name;
-        $result .= $this_result_name . " = " . $_->to_c . ";" for @items;
-        $result .= "}";
-        my $containing_result_name = $RESULT_VAR_NAMES[0];
-        $result .= "$containing_result_name = $this_result_name;\n";
+        $result .= $_->declare for @items;
+        $result .= "$name = " . $items[-1]->expression . ";\n";
+        $result .= "}\n";
         return $result;
     }
 }
@@ -125,30 +121,33 @@ EOVAR
 
 int main() {
 EOPREAMBLE
-        $result .= Msm::Toc->_push_result_name;
-        my @expressions = map { $_->to_c } @{$self->sexps};
-        $result .= join(",", @expressions);
-        my $printf_result_name = Msm::Toc->_pop_result_name;
+        $result .= $self->declare;
+        my $name = $self->stash;
+        my @sexps = @{$self->sexps};
+        $result .= $_->declare for @sexps;
+        $result .= "$name = " . $sexps[-1]->expression . ";\n";
         $result .= <<"EOPOSTAMBLE";
-;
-    printf("%d\\n", $printf_result_name);
+    printf("%d\\n", $name);
     return 0;
 }
 EOPOSTAMBLE
         return $result;
     }
+
+    sub declare {
+        my ($self) = @_;
+        my $name = Msm::Toc->_new_name;
+        $self->stash($name);
+        return "int $name;\n";
+    }
+
+    sub expression { return $_[0]->stash; }
 }
 
-sub _push_result_name {
+my $NAME_COUNTER = 1;
+sub _new_name {
     my ($class) = @_;
-    my $name = "result" . ++$result_name_suffix;
-    push @RESULT_VAR_NAMES, $name;
-    return "\tint $name;"
-}
-
-sub _pop_result_name {
-    my ($class) = @_;
-    return pop @RESULT_VAR_NAMES;
+    return "result" . $NAME_COUNTER++;
 }
 
 1;

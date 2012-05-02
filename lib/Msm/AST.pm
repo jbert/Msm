@@ -3,6 +3,7 @@ use Modern::Perl;
 {
     package Msm::AST::Node;
     use Moose;
+    has 'stash', is => 'rw';
 }
 {
     package Msm::AST::Atom;
@@ -88,6 +89,7 @@ use Modern::Perl;
 {
     package Msm::AST::Program;
     use Moose;
+    extends 'Msm::AST::Node';
     has 'sexps', is => 'rw';
 
     use overload '""' => sub { return join("\n" , @{$_[0]->sexps}); };
