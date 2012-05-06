@@ -1,15 +1,17 @@
+- support enough scheme to write a prime sieve....
+    - maybe support "DIV" prime finding first
+        - make mzscheme test runner a real runner?
+        - prefix with (require rnrs/base-6)
+        - then can have 'mod'
+    - first write a prime sieve in scheme...
+    - storage?
+    - recursion/looping?
+    - lambda?
+
 - make Msm/Evaluator pass $runner around and drop file-scope @BINDINGS
     - possibly use mixin with asm
 
-- add test to check that asm doesn't leave stuff stacked up:
-    (+ 1 2)
-    (+ 3 4
-    (+ 
-        (let ((a 1)
-              (b 2))
-          (+ a b)
-          (- a b)))
-- add let support to Asm
+DONE - add let support to Asm
     - each declared variable needs storage
     - need to handle shadowing of vars
         - lexical context in perl is:
@@ -26,7 +28,6 @@
             - and Toc?
             - 'asm_label' == 'global_c_var'
 
-
 - add 'emit' and nesting level for nice Toc 
 
 - add support for programs with boolean value?
@@ -38,7 +39,7 @@
     - add (if 1 1 (error "not evaluated"))
         - need nicer code to plug in ops
 
-- add vars?
+DONE - add vars?
     - use let form
         - (let ((a 1) (b 2)) (+ a b))
         - (let ((a 1) (b 2))
@@ -69,16 +70,6 @@
 
 - add timing support to each backend
     - sep runtime and compile time?
-
-- support enough scheme to write a prime sieve....
-    - maybe support "DIV" prime finding first
-        - make mzscheme test runner a real runner?
-        - prefix with (require rnrs/base-6)
-        - then can have 'mod'
-    - first write a prime sieve in scheme...
-    - storage?
-    - recursion/looping?
-    - lambda?
 
 DONE - structure tests by language feature so can just run some
     DONE - and have 'run one' env var

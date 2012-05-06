@@ -3,6 +3,8 @@ lib/Msm.pm
 lib/Msm/AST.pm
 lib/Msm/Evaluator.pm
 lib/Msm/Parser.pm
+lib/Msm/Toc.pm
+lib/Msm/Asm.pm
 Makefile.PL
 MANIFEST			This list of files
 README
